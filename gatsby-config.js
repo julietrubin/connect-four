@@ -15,6 +15,7 @@ module.exports = {
     siteUrl: `https://julietrubin.com/connect4`,
   },
   plugins: [
+    `gatsby-plugin-sass`,
     `gatsby-plugin-image`,
     {
       resolve: `gatsby-source-filesystem`,

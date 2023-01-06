@@ -1,9 +1,11 @@
 import * as React from "react"
 import Seo from "../components/seo"
-import * as styles from "../components/index.module.css"
+import "../components/index.scss"
 
 const IndexPage = () => (
-  <div>hi</div>
+  <>
+    <div class="circle"></div>
+  </>
 )
 
 export const Head = () => <Seo />
