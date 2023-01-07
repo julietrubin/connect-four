@@ -8,28 +8,45 @@ class IndexPage extends React.Component {
     super();
 
     this.state = {
-      circles: [[1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 2, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]
+      board: [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]],
     }
   }
 
-  clickCircle() {
-    this.setState({ clicked: !this.state.clicked })
+  clickColumn(columnIndex) {
+    var foundSpot = false;
+    // we reverse the rows because we need to check the bottom ones first
+    // then reverse again to get in correct order
+    this.setState(state => ({
+      board: state.board.reverse().map((row, index) => {
+        if (foundSpot) {
+          // we already placed the coin
+          return row;
+        }
+        if (row[columnIndex] != 0) {
+          // the spot is already filled
+          return row;
+        }
+        foundSpot = true;
+        row[columnIndex] = 1;
+        return row;
+      }).reverse()
+    }));
   }
 
   render() {
     return (
-      <table>
-        {this.state.circles.map((row) => {
-          return <tr key={row.id}>
-            {row.map((value, index) => {
-              return <td><Circle value={value}></Circle></td>
+      <table><tbody>
+        {this.state.board.map((row, rowIndex) => {
+          return <tr key={rowIndex} >
+            {row.map((value, columnIndex) => {
+              return <td key={columnIndex} onClick={() => this.clickColumn(columnIndex)}><Circle key={columnIndex} value={value}></Circle></td>
             })}
           </tr>
         })}
         {/* {this.state.circles.map(x => x.map(y => <Circle clicked={true}></Circle>))} */}
         {/* <div className={`circle ${this.state.clicked ? "clicked" : ""}`} onClick={this.clickCircle.bind(this)}></div> */}
-      </table>
+      </tbody></table >
     );
   }
 }
