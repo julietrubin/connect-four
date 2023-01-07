@@ -1,0 +1,15 @@
+.circle {
+    border: 1px solid black;
+
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.circle.player1 {
+    background-color: yellow;
+}
+
+.circle.player2 {
+    background-color: red;
+}
