@@ -9,7 +9,8 @@ class IndexPage extends React.Component {
 
     this.state = {
       board: [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]],
+        [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]],
+      playerTurn: 1,
     }
   }
 
@@ -19,18 +20,13 @@ class IndexPage extends React.Component {
     // then reverse again to get in correct order
     this.setState(state => ({
       board: state.board.reverse().map((row, index) => {
-        if (foundSpot) {
-          // we already placed the coin
-          return row;
-        }
-        if (row[columnIndex] != 0) {
-          // the spot is already filled
-          return row;
-        }
-        foundSpot = true;
-        row[columnIndex] = 1;
+        if (!foundSpot && row[columnIndex] == 0) {
+          foundSpot = true;
+          row[columnIndex] = state.playerTurn;
+        }    
         return row;
-      }).reverse()
+      }).reverse(),
+      playerTurn: state.playerTurn == 1 ? 2 : 1
     }));
   }
 
