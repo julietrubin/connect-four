@@ -2,13 +2,17 @@ import * as React from "react"
 import Seo from "../components/seo"
 import "./index.scss"
 import Circle from "../components/circle"
+import Draggable, { DraggableCore } from 'react-draggable';
+
 
 let ROW_LENGTH = 6;
 let COLUMN_LENGTH = 7;
 class IndexPage extends React.Component {
   constructor() {
+
     super();
 
+    this.myRef = React.createRef();
     this.state = {
       board: [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]],
@@ -91,8 +95,36 @@ class IndexPage extends React.Component {
 
   }
 
+  dragStart = (e, position) => {
+    // this.myRef.current = position;
+    console.log("start");
+
+    // console.log(e.target.innerHTML);
+  };
+
+  dragEnter = (e, position) => {
+    // this.myRef.current = position;
+    console.log("enter");
+    // console.log(e.target.innerHTML);
+  };
+
+  drop = (e) => {
+    console.log("drop");
+    // const copyListItems = [...list];
+    // const dragItemContent = copyListItems[dragItem.current];
+    // copyListItems.splice(dragItem.current, 1);
+    // copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+    // dragItem.current = null;
+    // dragOverItem.current = null;
+    // setList(copyListItems);
+  };
   render() {
     return (
+      <>
+        <div ref={this.myRef} className="circle player1" draggable
+          onDragStart={(e) => this.dragStart(e)}
+          onDragEnter={(e) => this.dragEnter(e)}
+          onDragEnd={this.drop}></div>
       <table><tbody>
         {this.state.board.map((row, rowIndex) => {
           return <tr key={rowIndex} >
@@ -101,7 +133,7 @@ class IndexPage extends React.Component {
             })}
           </tr>
         })}
-      </tbody></table >
+        </tbody></table ></>
     );
   }
 }
