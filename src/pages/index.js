@@ -9,19 +9,13 @@ let ROW_LENGTH = 6;
 let COLUMN_LENGTH = 7;
 
 const DraggableCircle = styled.div`
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    cursor: move;
-    background-color: ${props => props.playerTurn == 1 ? `yellow` : `red`};
     transition: ${props => props.isControlled ? `transform 0.9s` : `none`};
   `;
 
 function IndexPage() {
   const [position, setPosition] = useState({ x: 200, y: 0 });
   const [isControlled, setIsControlled] = useState(true);
-  const [board, setBoard] = useState([[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]);
+  const [board, setBoard] = useState(Array.from({ length: ROW_LENGTH }, () => Array.from({ length: COLUMN_LENGTH }, () => 0)));
   const [playerTurn, setPlayerTurn] = useState(1);
   const tableRef = React.createRef();
 
@@ -33,33 +27,64 @@ function IndexPage() {
     setPosition({ x: data.x, y: data.y });
   };
 
-  const delay = ms => new Promise(
-    resolve => setTimeout(resolve, ms)
-  );
+  const findColumn = (dropX) => {
+    // TODO: move xArray
+    var xArray = Array.from(tableRef.current.children[0].children[0].children).map((e) => e.getBoundingClientRect().x);
+    for (var i = 0; i < xArray.length; i++) {
+      if (dropX >= xArray[i] - 10 && dropX <= xArray[i] + 10) {
+        return i;
+      }
+    }
+  }
+
+  const findRow = (x) => {
+    for (var i = board.length - 1; i >= 0; i--) {
+      if (board[i][x] == 0) {
+        return i;
+      }
+    }
+  }
+
+
+  // returns an array with [x,y] coordinates of drop location if it exist 
+  // TODO: rename dropX
+  const findSpot = (dropX) => {
+    var x = findColumn(dropX);
+    if (x != null) {
+      var y = findRow(x);
+      if (y != null) {
+        return [x, y];
+      }
+    }
+  }
+
 
   const handleStop = async (e, data) => {
     setIsControlled(true)
-    var yArray = tableRef.current.children[0].children;
-    var y = yArray[yArray.length - 1].getBoundingClientRect().y;
-
+    var yArray = Array.from(tableRef.current.children[0].children).map((e) => e.getBoundingClientRect().y);
     var xArray = Array.from(tableRef.current.children[0].children[0].children).map((e) => e.getBoundingClientRect().x);
 
-    for (var i = 0; i < xArray.length; i++) {
-      if (data.x >= xArray[i] - 10 && data.x <= xArray[i] + 10) {
-        setPosition({ x: xArray[i] - 4, y: y - 4 });
-        setTimeout(() => {
-          setPlayerTurn(playerTurn == 1 ? 2 : 1); clickColumn(i);
-          setIsControlled(false); setPosition({ x: 200, y: 0 })
-        }, 1000);
-        break;
-      }
+    // TODO: make better
+    var coordinates = findSpot(data.x);
+    if (coordinates != null) {
+      setPosition({ x: xArray[coordinates[0]] - 4, y: yArray[coordinates[1]] - 4 });
+      let copy = [...board];
+      copy[coordinates[1]][coordinates[0]] = playerTurn;
+      setBoard(copy);
+      setTimeout(() => {
+        // setPlayerTurn(playerTurn == 1 ? 2 : 1);
+        setIsControlled(false);
+        setPosition({ x: 200, y: 0 });
+        setPlayerTurn(playerTurn == 1 ? 2 : 1);
+      }, 1000);
     }
+  }
     // todo: bounce
     // await delay(200);
     // setPosition({ x: data.x, y: y - 10 })
     // await delay(200);
     // setPosition({ x: data.x, y: y })
-  }
+
 
   const arrayContainsConnect4 = (array) => {
     return array.join('').includes(playerTurn == 1 ? '1111' : '2222');;
@@ -113,28 +138,6 @@ function IndexPage() {
       || checkDiagonalDown(rowIndex, columnIndex);
   }
 
-  const clickColumn = (columnIndex) => {
-    var foundSpot = false;
-    var rowIndex = -1;
-    // we reverse the rows because we need to check the bottom ones first
-    // then reverse again to get correct order
-    setBoard(board.reverse().map((row, index) => {
-      // TODO: separate the logic inside here
-      if (!foundSpot && row[columnIndex] == 0) {
-        foundSpot = true;
-        row[columnIndex] = playerTurn;
-        rowIndex = index;
-        if (checkIfWon(rowIndex, columnIndex)) {
-          console.log("won");
-        }
-      }
-      return row;
-    }).reverse(),
-    );
-
-
-  }
-
     return (
       <>
         < Draggable
@@ -144,7 +147,7 @@ function IndexPage() {
           onDrag={handleDrag}
           onStop={handleStop}
         >
-          <DraggableCircle isControlled={isControlled}></DraggableCircle>
+          <DraggableCircle className={`draggable-circle ${playerTurn == 1 ? "player1" : "player2"}`} isControlled={isControlled}></DraggableCircle>
         </Draggable >
         <table ref={tableRef}><tbody >
           {board.map((row, rowIndex) => {
