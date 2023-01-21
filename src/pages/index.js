@@ -49,13 +49,14 @@ function IndexPage() {
   // returns an array with [x,y] coordinates of drop location if it exist 
   // TODO: rename dropX
   const findSpot = (dropX) => {
-    var x = findColumn(dropX);
-    if (x != null) {
-      var y = findRow(x);
-      if (y != null) {
-        return [x, y];
+    var column = findColumn(dropX);
+    if (column != null) {
+      var row = findRow(column);
+      if (row != null) {
+        return [row, column];
       }
     }
+    return [null, null];
   }
 
 
@@ -64,18 +65,21 @@ function IndexPage() {
     var yArray = Array.from(tableRef.current.children[0].children).map((e) => e.getBoundingClientRect().y);
     var xArray = Array.from(tableRef.current.children[0].children[0].children).map((e) => e.getBoundingClientRect().x);
 
-    // TODO: make better
-    var coordinates = findSpot(data.x);
-    if (coordinates != null) {
-      setPosition({ x: xArray[coordinates[0]] - 4, y: yArray[coordinates[1]] - 4 });
+    var [row, column] = findSpot(data.x);
+
+    if (column != null) {
+      setPosition({ x: xArray[column] - 4, y: yArray[row] - 4 });
       let copy = [...board];
-      copy[coordinates[1]][coordinates[0]] = playerTurn;
+      copy[row][column] = playerTurn;
       setBoard(copy);
       setTimeout(() => {
         // setPlayerTurn(playerTurn == 1 ? 2 : 1);
         setIsControlled(false);
         setPosition({ x: 200, y: 0 });
         setPlayerTurn(playerTurn == 1 ? 2 : 1);
+        if (checkIfWon(row, column)) {
+          console.log("won");
+        }
       }, 1000);
     }
   }
