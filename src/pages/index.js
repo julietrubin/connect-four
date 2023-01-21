@@ -8,21 +8,23 @@ import styled from "@emotion/styled";
 let ROW_LENGTH = 6;
 let COLUMN_LENGTH = 7;
 
-const Box = styled.div`
-    width: 200px;
-    height: 200px;
-    border: 1px solid black;
-    background: yellow;
+const DraggableCircle = styled.div`
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     cursor: move;
-    transition: ${props => props.isControlled ? `transform 0.3s` : `none`};
+    background-color: ${props => props.playerTurn == 1 ? `yellow` : `red`};
+    transition: ${props => props.isControlled ? `transform 0.5s` : `none`};
   `;
 
 function IndexPage() {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 200, y: 0 });
   const [isControlled, setIsControlled] = useState(true);
   const [board, setBoard] = useState([[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]]);
   const [playerTurn, setPlayerTurn] = useState(1);
+  const tableRef = React.createRef();
+
 
   const handleStart = () => {
     setIsControlled(false)
@@ -30,9 +32,28 @@ function IndexPage() {
   const handleDrag = (e, data) => {
     setPosition({ x: data.x, y: data.y });
   };
-  const handleStop = (e, data) => {
+
+  const delay = ms => new Promise(
+    resolve => setTimeout(resolve, ms)
+  );
+
+  const handleStop = async (e, data) => {
     setIsControlled(true)
-    setPosition({ x: data.x, y: 300 })
+    var yArray = tableRef.current.children[0].children;
+    var y = yArray[yArray.length - 1].getBoundingClientRect().y - 7;
+
+    var xArray = Array.from(tableRef.current.children[0].children[0].children).map((e) => e.getBoundingClientRect().x);
+    console.log(data.x);
+    setPosition({ x: data.x, y: y });
+    setTimeout(() => { setIsControlled(false); setPosition({ x: 200, y: 0 }) }, 1000);
+
+
+
+    // todo: bounce
+    // await delay(200);
+    // setPosition({ x: data.x, y: y - 10 })
+    // await delay(200);
+    // setPosition({ x: data.x, y: y })
   }
 
   const arrayContainsConnect4 = (array) => {
@@ -112,19 +133,19 @@ function IndexPage() {
     return (
       <>
         < Draggable
+          bounds={{ top: 0, bottom: 100, }}
           position={position}
           onStart={handleStart}
           onDrag={handleDrag}
           onStop={handleStop}
-          onDragOver={() => console.log("over")}
         >
-          <Box isControlled={isControlled}>Drag me</Box>
+          <DraggableCircle isControlled={isControlled}></DraggableCircle>
         </Draggable >
-        <table><tbody>
+        <table ref={tableRef}><tbody >
           {board.map((row, rowIndex) => {
             return <tr key={rowIndex} >
               {row.map((value, columnIndex) => {
-                return <td onDragOver={() => console.log("over")} key={columnIndex}><Circle key={columnIndex} value={value}></Circle></td>
+                return <td key={columnIndex}><Circle key={columnIndex} value={value}></Circle></td>
               })}
             </tr>
           })}
