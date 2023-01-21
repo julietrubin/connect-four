@@ -14,7 +14,7 @@ const DraggableCircle = styled.div`
     border-radius: 50%;
     cursor: move;
     background-color: ${props => props.playerTurn == 1 ? `yellow` : `red`};
-    transition: ${props => props.isControlled ? `transform 0.5s` : `none`};
+    transition: ${props => props.isControlled ? `transform 0.9s` : `none`};
   `;
 
 function IndexPage() {
@@ -43,19 +43,17 @@ function IndexPage() {
     var y = yArray[yArray.length - 1].getBoundingClientRect().y;
 
     var xArray = Array.from(tableRef.current.children[0].children[0].children).map((e) => e.getBoundingClientRect().x);
-    console.log(data.x);
 
     for (var i = 0; i < xArray.length; i++) {
       if (data.x >= xArray[i] - 10 && data.x <= xArray[i] + 10) {
         setPosition({ x: xArray[i] - 4, y: y - 4 });
-        setTimeout(() => { setIsControlled(false); setPosition({ x: 200, y: 0 }) }, 1000);
+        setTimeout(() => {
+          setPlayerTurn(playerTurn == 1 ? 2 : 1); clickColumn(i);
+          setIsControlled(false); setPosition({ x: 200, y: 0 })
+        }, 1000);
         break;
       }
     }
-
-
-
-
     // todo: bounce
     // await delay(200);
     // setPosition({ x: data.x, y: y - 10 })
@@ -68,11 +66,11 @@ function IndexPage() {
   }
 
   const checkRow = (rowIndex) => {
-    return this.arrayContainsConnect4(board[rowIndex]);
+    return arrayContainsConnect4(board[rowIndex]);
   }
 
   const checkColumn = (columnIndex) => {
-    return this.arrayContainsConnect4(board.map((row) => row[columnIndex]));
+    return arrayContainsConnect4(board.map((row) => row[columnIndex]));
   }
 
   const checkDiagonalUp = (rowIndex, columnIndex) => {
@@ -105,7 +103,7 @@ function IndexPage() {
       y--;
       x++;
     }
-    return this.arrayContainsConnect4(array);
+    return arrayContainsConnect4(array);
   }
 
   const checkIfWon = (rowIndex, columnIndex) => {
@@ -120,21 +118,21 @@ function IndexPage() {
     var rowIndex = -1;
     // we reverse the rows because we need to check the bottom ones first
     // then reverse again to get correct order
-    // this.setState(state => ({
-    //   board: state.board.reverse().map((row, index) => {
-    //     // TODO: separate the logic inside here
-    //     if (!foundSpot && row[columnIndex] == 0) {
-    //       foundSpot = true;
-    //       row[columnIndex] = state.playerTurn;
-    //       rowIndex = index;
-    //       if (checkIfWon(rowIndex, columnIndex)) {
-    //         console.log("won");
-    //       }
-    //     }
-    //     return row;
-    //   }).reverse(),
-    //   playerTurn: state.playerTurn == 1 ? 2 : 1
-    // }));
+    setBoard(board.reverse().map((row, index) => {
+      // TODO: separate the logic inside here
+      if (!foundSpot && row[columnIndex] == 0) {
+        foundSpot = true;
+        row[columnIndex] = playerTurn;
+        rowIndex = index;
+        if (checkIfWon(rowIndex, columnIndex)) {
+          console.log("won");
+        }
+      }
+      return row;
+    }).reverse(),
+    );
+
+
   }
 
     return (
