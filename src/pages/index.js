@@ -40,12 +40,21 @@ function IndexPage() {
   const handleStop = async (e, data) => {
     setIsControlled(true)
     var yArray = tableRef.current.children[0].children;
-    var y = yArray[yArray.length - 1].getBoundingClientRect().y - 7;
+    var y = yArray[yArray.length - 1].getBoundingClientRect().y;
 
     var xArray = Array.from(tableRef.current.children[0].children[0].children).map((e) => e.getBoundingClientRect().x);
     console.log(data.x);
-    setPosition({ x: data.x, y: y });
-    setTimeout(() => { setIsControlled(false); setPosition({ x: 200, y: 0 }) }, 1000);
+
+    var current = 0;
+    for (var i = 0; i < xArray.length; i++) {
+      if (data.x > current && data.x < xArray[i]) {
+        setPosition({ x: xArray[i] - 4, y: y - 4 });
+        setTimeout(() => { setIsControlled(false); setPosition({ x: 200, y: 0 }) }, 1000);
+        break;
+      }
+      current = xArray[i];
+    }
+
 
 
 
